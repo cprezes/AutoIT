@@ -2,4 +2,4 @@
 PL 
 Zabawy i proste programiki AutoIt 
 EN 
-Having fun with AutoIT scripts
+Simple AutoIT scripts
