@@ -17,9 +17,9 @@ $Form1 = GUICreate("Ogonek", 219, 110,  -1, -1, BitOR($WS_POPUP,$DS_MODALFRAME,$
 
 $Button1 = GUICtrlCreateButton("X", 184, 8, 25, 25, $BS_FLAT)
 GUICtrlSetFont(-1, 14, 800, 0, "MS Sans Serif")
-$Label1 = GUICtrlCreateLabel("polskie ogonki z schowka zostaj¹ obciête ", 8, 88, 206, 17)
-$Label2 = GUICtrlCreateLabel("Podczas dzia³ania programu wszystkie ", 8, 72, 183, 17)
-$Label3 = GUICtrlCreateLabel("Monitorowanie schowka w³¹czone", 8, 8, 119, 30)
+$Label1 = GUICtrlCreateLabel("polskie ogonki z schowka zostajÄ… obciÄ™te ", 8, 88, 206, 17)
+$Label2 = GUICtrlCreateLabel("Podczas dziaÅ‚ania programu wszystkie ", 8, 72, 183, 17)
+$Label3 = GUICtrlCreateLabel("Monitorowanie schowka wÅ‚Ä…czone", 8, 8, 119, 30)
 $Label4 = GUICtrlCreateLabel("(^_^)", 64, 24, 84, 38)
 GUICtrlSetFont(-1, 22, 800, 0, "Consolas")
 GUICtrlSetColor(-1, 0x000000)
@@ -49,7 +49,7 @@ if $napis <> $napis1 Then
 GUICtrlSetData( $Label4 , "(^o^)")
 $infoLabel=True
 $hTimer = TimerInit()
-Local $Literki[16][2] =[["ê", "e"],["ó", "o"],["³", "l"],["œ", "s"],["¹", "a"],["¿", "z"],["æ", "c"],["ñ", "n"],["Ê", "E"],["Ó", "O"],["£", "L"],["Œ", "S"],["¥", "A"],["¯", "Z"],["Æ", "C"],["Ñ", "N"]]
+Local $Literki[16][2] =[["Ä™", "e"],["Ã³", "o"],["Å‚", "l"],["Å›", "s"],["Ä…", "a"],["Å¼", "z"],["Ä‡", "c"],["Å„", "n"],["Ä˜", "E"],["Ã“", "O"],["Å", "L"],["Åš", "S"],["Ä„", "A"],["Å»", "Z"],["Ä†", "C"],["Åƒ", "N"]]
 for $licznik = 0 to 15
 $napis=StringReplace($napis,$Literki[$licznik][0], $Literki[$licznik][1],0,1)
 Next
@@ -73,6 +73,7 @@ WEnd
          _SendMessage($Form1, $WM_NCLBUTTONDOWN, $HTCAPTION, 0)
      EndIf
  EndFunc   ;==>On_Drag
+
 
 
 
