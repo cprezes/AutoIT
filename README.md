@@ -1,7 +1,7 @@
 # AutoIT
-###PL### 
+### PL ### 
 
 Zabawy i proste programiki AutoIt 
-###EN### 
+### EN ### 
 
 Simple AutoIT scripts
