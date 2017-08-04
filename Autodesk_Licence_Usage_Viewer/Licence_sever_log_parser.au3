@@ -7,7 +7,7 @@
 #AutoIt3Wrapper_UPX_Parameters=--ultra-brute
 #AutoIt3Wrapper_Res_Comment=Navis Licence log parser Cp
 #AutoIt3Wrapper_Res_Description=Navis Licence log parser Cp
-#AutoIt3Wrapper_Res_Fileversion=1.1.1.17
+#AutoIt3Wrapper_Res_Fileversion=1.1.1.21
 #AutoIt3Wrapper_Res_Fileversion_AutoIncrement=y
 #AutoIt3Wrapper_Res_LegalCopyright=Cezar z IT
 #AutoIt3Wrapper_Res_Language=1045
@@ -23,7 +23,7 @@
 #include <Array.au3>
 #include "TCPServer.au3"
 
-Global $aUserInOut[0], $aUserName[0], $aUserMovement[0], $aUserMovementScore[0]
+
 
 _TCPServer_OnReceive("received")
 
@@ -32,19 +32,27 @@ _TCPServer_SetMaxClients(10)
 
 _TCPServer_Start(8081)
 
-
-Func received($iSocket, $sIP, $sData, $sParam)
-
-	_TCPServer_Send($iSocket, "HTTP/1.0 200 OK" & @CRLF & _
-			"Content-Type: text/html" & @CRLF & @CRLF & _
-			czyscPolskie(parseLog()))
-	_TCPServer_Close($iSocket)
-
-EndFunc   ;==>received
-
 While 1
 	Sleep(1000)
 WEnd
+
+Func received($iSocket, $sIP, $sData, $sParam)
+	Global $aUserInOut[0], $aUserName[0], $aUserMovement[0], $aUserMovementScore[0]
+
+	_TCPServer_Send($iSocket, czyscPolskie("HTTP/1.0 200 OK" & @CRLF & _
+			"Content-Type: text/html" & @CRLF & @CRLF & _
+			parseLog() & @CRLF & _
+			clearOutUser() & @CRLF & _
+			@CRLF & "<br/><br/>v.:" & FileGetVersion(@AutoItExe) & " (Cp)"))
+	_TCPServer_Close($iSocket)
+
+	$aUserInOut = 0
+	$aUserName = 0
+	$aUserMovement = 0
+	$aUserMovementScore = 0
+
+EndFunc   ;==>received
+
 
 Func parseLog()
 	Local $aPlik, $line
@@ -73,16 +81,15 @@ Func parseLog()
 			$sOut = $sOut & StringRight($line, StringLen($line) - StringInStr($line, '" ')) ; login
 			collectUsers(2, StringRight($line, StringLen($line) - StringInStr($line, '" ')))
 			$sOut = $sOut & "</td></tr>"
-			$sOut = $sOut & @LF
+			$sOut = $sOut & @CRLF
 		EndIf
 		If StringInStr(StringLeft($line, 3), " 0:") Then ExitLoop
 		If StringInStr(StringLeft($line, 3), "23:") Then ExitLoop
 	Next
 	$sOut = $sOut & "</table><br/>"
-	$sOut = $sOut & @LF & "<h3>Konsolidując zgrubnie powyższe, aktualnie pracują:</h3>"
-	$sOut = $sOut & @LF & clearOutUser()
+	$sOut = $sOut & @CRLF
+
 	$sOut = StringReplace($sOut, "Licensed number of users already reached", "Brak wolnych licnecji")
-	$sOut = $sOut & @CRLF & @CRLF & "<br/><br/>v.:" & FileGetVersion(@AutoItExe) & " (Cp)"
 	Return $sOut
 EndFunc   ;==>parseLog
 
@@ -94,16 +101,22 @@ Func collectUsers($arry, $value)
 EndFunc   ;==>collectUsers
 
 
-Func writeArrays($array1, $array2)
-
+Func showArrays($array1, $array2)
+	ConsoleWrite(@CRLF)
 	For $i = 0 To UBound($array1) - 1
-		ConsoleWrite($array1[$i] & " -> " & $array2[$i] & @LF)
+		ConsoleWrite($array1[$i] & " -> " & $array2[$i] & @CRLF)
 	Next
 
-EndFunc   ;==>writeArrays
+EndFunc   ;==>showArrays
+
+Func debugView()
+	ConsoleWrite(czyscPolskie(parseLog()) & @CRLF & clearOutUser())
+	showArrays($aUserMovement, $aUserMovementScore)
+	Exit 0
+EndFunc   ;==>debugView
 
 Func clearOutUser()
-	Local $sLoginTmp, $iUserScore, $sOut = ""
+	Local $sLoginTmp, $iUserScore, $sOut = "<h3>Konsolidując zgrubnie powyższe, aktualnie pracują:</h3>"
 	For $i = UBound($aUserName) - 1 To 0 Step -1
 		$iUserScore = 0
 		$sLoginTmp = $aUserName[$i]
@@ -120,17 +133,14 @@ Func clearOutUser()
 			_ArrayAdd($aUserMovementScore, $iUserScore)
 		EndIf
 	Next
-	$sOut = $sOut & @LF & "<table>"
-
-
-
+	$sOut = $sOut & @CRLF & "<table>" & @CRLF
 
 	For $i = 0 To UBound($aUserMovementScore) - 1
 		If ($aUserMovementScore[$i] > 0) Then
-			$sOut = $sOut & "<tr><td> "
+			$sOut = $sOut & "<tr><td>" & @CRLF
 			$sOut = $sOut & formatDane(StringLeft($aUserMovement[$i], StringInStr($aUserMovement[$i], "@") - 1))
-			$sOut = $sOut & " -> " & StringUpper(StringMid($aUserMovement[$i], StringInStr($aUserMovement[$i], "@") + 1)) & "<br/>"
-			$sOut = $sOut & "</tr></td> " & @LF
+			$sOut = $sOut & " -> " & StringUpper(StringMid($aUserMovement[$i], StringInStr($aUserMovement[$i], "@") + 1))
+			$sOut = $sOut & @CRLF & "</tr></td> "
 		EndIf
 	Next
 
