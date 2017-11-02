@@ -6,7 +6,7 @@
 #NoTrayIcon
 #Region ;**** Directives created by AutoIt3Wrapper_GUI ****
 #AutoIt3Wrapper_Icon=..\ico\footer_logo.jpg.ico
-#AutoIt3Wrapper_Outfile=instalaTOR.exe
+#AutoIt3Wrapper_Outfile=To_UTF8_converter.exe
 #AutoIt3Wrapper_Compression=4
 #AutoIt3Wrapper_UseUpx=y
 #AutoIt3Wrapper_Run_Obfuscator=y
