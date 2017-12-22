@@ -1,6 +1,6 @@
 #NoTrayIcon
 #Region ;**** Directives created by AutoIt3Wrapper_GUI ****
-#AutoIt3Wrapper_Icon=C:\Users\cprzyborowski\Desktop\progr\programowanie\ico\history2.ico
+#AutoIt3Wrapper_Icon=..\ico\history2.ico
 #AutoIt3Wrapper_Outfile=Navis_log_parser.exe
 #AutoIt3Wrapper_Compression=4
 #AutoIt3Wrapper_UseUpx=y
