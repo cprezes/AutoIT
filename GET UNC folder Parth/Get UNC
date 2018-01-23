@@ -1,0 +1,169 @@
+
+#Region ;**** Directives created by AutoIt3Wrapper_GUI ****
+#AutoIt3Wrapper_Icon=progr\programowanie\ico\favicon[6]1.ico
+#AutoIt3Wrapper_Compression=4
+#AutoIt3Wrapper_UseUpx=y
+#AutoIt3Wrapper_UPX_Parameters=--ultra-brute
+#AutoIt3Wrapper_Res_Comment=Cezar z IT
+#AutoIt3Wrapper_Res_Description=Cezar z IT
+#AutoIt3Wrapper_Res_Fileversion=0.0.2.9
+#AutoIt3Wrapper_Res_Fileversion_AutoIncrement=y
+#AutoIt3Wrapper_Res_LegalCopyright=Cezar z IT
+#AutoIt3Wrapper_Res_Language=1045
+#AutoIt3Wrapper_Res_Field=Cezar z IT|Cezar z IT
+#AutoIt3Wrapper_Run_Tidy=y
+#EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
+#include-once
+
+#include <Array.au3>
+#include <File.au3>
+#include <Constants.au3>
+#include <Array.au3>
+
+#include <ButtonConstants.au3>
+#include <EditConstants.au3>
+#include <GUIConstantsEx.au3>
+#include <StaticConstants.au3>
+#include <WindowsConstants.au3>
+
+Global $sMsg = "Poniżej jest ścieżka bezpośrednia do folderu, do którego trzeba nadać dostęp skopiuj ją i wklej do zgłoszenia."
+
+
+$Form1 = GUICreate("Show UNC folder Parth by Cezar ", 924, 148)
+$lbl_info = GUICtrlCreateLabel("Każdy dział posiada swóją własną kolekcję dysków sieciowych. Ten program pokaże jaka jest ścieżka bezpośrednia.", 24, 16, 876, 28, $SS_CENTER)
+GUICtrlSetFont(-1, 12, 400, 0, "MS Sans Serif")
+GUICtrlSetColor(-1, 0x000000)
+$Input1 = GUICtrlCreateInput("", 16, 56, 889, 28)
+GUICtrlSetFont(-1, 12, 400, 0, "MS Sans Serif")
+GUICtrlSetColor(-1, 0x000000)
+$btnCopy = GUICtrlCreateButton("Skopiuj i zamkinj okno ", 72, 104, 779, 33)
+GUICtrlSetFont(-1, 14, 400, 0, "MS Sans Serif")
+$btnStart = GUICtrlCreateButton("Kliknij aby wskazać folder", 8, 48, 905, 97)
+GUICtrlSetFont(-1, 24, 400, 0, "MS Sans Serif")
+GUISetState(@SW_SHOW)
+
+GUICtrlSetState($Input1, $GUI_HIDE)
+GUICtrlSetState($btnCopy, $GUI_HIDE)
+GUICtrlSetState($btnStart, $GUI_SHOW)
+
+While 1
+	$nMsg = GUIGetMsg()
+	Switch $nMsg
+		Case $GUI_EVENT_CLOSE
+			Exit
+		Case $btnCopy
+			ClipPut(GUICtrlRead($Input1))
+			Exit
+		Case $btnStart
+			SelectFile()
+	EndSwitch
+WEnd
+
+
+
+
+
+
+Func SelectFile()
+
+	$find = FileSelectFolder("Czesc", "Wybierz folder który chcesz udostępnić")
+	If @error Then Exit
+
+	GUICtrlSetState($btnStart, $GUI_HIDE)
+	$find = _RTRIM($find, "\")
+
+	If (FileGetAttrib($find) = "D") Then $find = $find & "\"
+	If (StringInStr($find, ":")) Then
+		$sDrive = _GetDrive($find)
+		$sDirname = _GetDirname($find)
+
+		GUICtrlSetData($lbl_info, $sMsg)
+		$DOS = Run(@ComSpec & ' /c net use', "", @SW_HIDE, $STDERR_CHILD + $STDOUT_CHILD)
+		ProcessWaitClose($DOS)
+		$Message = StdoutRead($DOS)
+
+
+		$aOutput = StringSplit($Message, @CRLF, 1)
+		$sLineWithDrive = GetLineWithString($aOutput, $sDrive)
+	Else
+		$sLineWithDrive = $find
+		$sDirname = ""
+	EndIf
+	GUICtrlSetData($Input1, $sLineWithDrive & $sDirname)
+	GUICtrlSetState($Input1, $GUI_SHOW)
+	GUICtrlSetState($btnCopy, $GUI_SHOW)
+
+EndFunc   ;==>SelectFile
+
+Func GetLineWithString($aArray, $sting)
+	For $vElement In $aArray
+		$sLine = StringStripWS($vElement, 3)
+		If (StringInStr($sLine, $sting, 2)) Then ExitLoop
+	Next
+	If (StringLen($sLine) < 3) Then
+		$sLine = $sting
+	Else
+		$sLine = _LTRIM($sLine, "OK")
+		$sLine = StringStripWS($sLine, 3)
+		$sLine = _LTRIM($sLine, $sting)
+		$sLine = StringStripWS($sLine, 3)
+	EndIf
+	Return $sLine
+EndFunc   ;==>GetLineWithString
+
+
+Func _LTRIM($sString, $sTrimChars = ' ')
+
+	$sTrimChars = StringReplace($sTrimChars, "%%whs%%", " " & Chr(9) & Chr(11) & Chr(12) & @CRLF)
+	Local $nCount, $nFoundChar
+	Local $aStringArray = StringSplit($sString, "")
+	Local $aCharsArray = StringSplit($sTrimChars, "")
+
+	For $nCount = 1 To $aStringArray[0]
+		$nFoundChar = 0
+		For $i = 1 To $aCharsArray[0]
+			If $aCharsArray[$i] = $aStringArray[$nCount] Then
+				$nFoundChar = 1
+			EndIf
+		Next
+		If $nFoundChar = 0 Then Return StringTrimLeft($sString, ($nCount - 1))
+	Next
+EndFunc   ;==>_LTRIM
+
+
+Func _RTRIM($sString, $sTrimChars = ' ')
+
+	$sTrimChars = StringReplace($sTrimChars, "%%whs%%", " " & Chr(9) & Chr(11) & Chr(12) & @CRLF)
+	Local $nCount, $nFoundChar
+	Local $aStringArray = StringSplit($sString, "")
+	Local $aCharsArray = StringSplit($sTrimChars, "")
+
+	For $nCount = $aStringArray[0] To 1 Step -1
+		$nFoundChar = 0
+		For $i = 1 To $aCharsArray[0]
+			If $aCharsArray[$i] = $aStringArray[$nCount] Then
+				$nFoundChar = 1
+			EndIf
+		Next
+		If $nFoundChar = 0 Then Return StringTrimRight($sString, ($aStringArray[0] - $nCount))
+	Next
+EndFunc   ;==>_RTRIM
+
+
+
+
+Func _GetDirname($psFilename)
+	Local $szDrive, $szDir, $szFName, $szExt
+	_PathSplit($psFilename, $szDrive, $szDir, $szFName, $szExt)
+	Return $szDir
+EndFunc   ;==>_GetDirname
+
+Func _GetDrive($psFilename)
+	Local $szDrive, $szDir, $szFName, $szExt
+	_PathSplit($psFilename, $szDrive, $szDir, $szFName, $szExt)
+	Return $szDrive
+EndFunc   ;==>_GetDrive
+
+
+
+
